@@ -18,7 +18,7 @@
 > cargo fmt
 ```
 
-### リンター
+### コード解析
 
 ```rust
 > cargo clippy
