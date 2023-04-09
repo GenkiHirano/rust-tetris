@@ -6,8 +6,20 @@
 
 ## コマンド
 
-- スタート
+### スタート
 
 ```rust
 > cargo run
+```
+
+### コードフォーマッター
+
+```rust
+> cargo fmt
+```
+
+### リンター
+
+```rust
+> cargo clippy
 ```
