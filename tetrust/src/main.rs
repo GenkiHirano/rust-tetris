@@ -1,24 +1,9 @@
+mod block;
+
+use block::{BlockKind, BLOCKS};
 use getch_rs::{Getch, Key};
-use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
 use std::sync::{Arc, Mutex};
 use std::{thread, time};
-
-impl Distribution<BlockKind> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> BlockKind {
-        match rng.gen_range(0..=6) {
-            0 => BlockKind::I,
-            1 => BlockKind::O,
-            2 => BlockKind::S,
-            3 => BlockKind::Z,
-            4 => BlockKind::J,
-            5 => BlockKind::L,
-            _ => BlockKind::T,
-        }
-    }
-}
 
 // フィールドを描画する
 fn draw(field: &Field, pos: &Position, block: BlockKind) {
@@ -50,37 +35,6 @@ fn draw(field: &Field, pos: &Position, block: BlockKind) {
 const FIELD_WIDTH: usize = 11 + 2; // フィールド＋壁
 const FIELD_HEIGHT: usize = 20 + 1; // フィールド＋底
 type Field = [[usize; FIELD_WIDTH]; FIELD_HEIGHT];
-
-// ブロックの種類
-#[derive(Clone, Copy)]
-enum BlockKind {
-    I,
-    O,
-    S,
-    Z,
-    J,
-    L,
-    T,
-}
-
-// ブロックの形状
-type BlockShape = [[usize; 4]; 4];
-const BLOCKS: [BlockShape; 7] = [
-    // Iブロック
-    [[0, 0, 0, 0], [0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0]],
-    // Oブロック
-    [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
-    // Sブロック
-    [[0, 0, 0, 0], [0, 1, 1, 0], [1, 1, 0, 0], [0, 0, 0, 0]],
-    // Zブロック
-    [[0, 0, 0, 0], [1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
-    // Jブロック
-    [[0, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0]],
-    // Lブロック
-    [[0, 0, 0, 0], [0, 0, 1, 0], [1, 1, 1, 0], [0, 0, 0, 0]],
-    // Tブロック
-    [[0, 0, 0, 0], [0, 1, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0]],
-];
 
 struct Position {
     x: usize,
