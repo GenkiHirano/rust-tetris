@@ -132,3 +132,31 @@ pub fn move_block(game: &mut Game, new_pos: Position) {
         game.pos = new_pos;
     }
 }
+
+// ブロックを生成する
+// 生成に失敗した場合は`Err(())`を返す
+pub fn spawn_block(game: &mut Game) -> Result<(), ()> {
+    // posの座標を初期値へ
+    game.pos = Position::init();
+    // ブロックをランダム生成
+    game.block = rand::random();
+    // 衝突チェック
+    if is_collision(&game.field, &game.pos, game.block) {
+        Err(())
+    } else {
+        Ok(())
+    }
+}
+
+// ゲームオーバー処理
+pub fn gameover(game: &Game) {
+    draw(game);
+    println!("GAMEOVER");
+    println!("press `q` key to exit");
+}
+
+// 終了処理
+pub fn quit() {
+    // カーソルを再表示
+    println!("\x1b[?25h");
+}
