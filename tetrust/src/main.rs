@@ -28,7 +28,7 @@ fn main() {
                     x: game.pos.x,
                     y: game.pos.y + 1,
                 };
-                if !is_collision(&game.field, &new_pos, game.block) {
+                if !is_collision(&game.field, &new_pos, &game.block) {
                     // posの座標を更新
                     game.pos = new_pos;
                 } else {
