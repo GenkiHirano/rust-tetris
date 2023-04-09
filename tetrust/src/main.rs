@@ -159,8 +159,21 @@ fn main() {
                     // ブロックをフィールドに固定
                     for y in 0..4 {
                         for x in 0..4 {
-                            if BLOCKS[*block as usize][y][x] == 1 {
-                                field[y + pos.y][x + pos.x] = 1;
+                            field[y + pos.y][x + pos.x] |= BLOCKS[*block as usize][y][x];
+                        }
+                    }
+                    // ラインの削除処理
+                    for y in 1..FIELD_HEIGHT - 1 {
+                        let mut can_erase = true;
+                        for x in 1..FIELD_WIDTH - 1 {
+                            if field[y][x] == 0 {
+                                can_erase = false;
+                                break;
+                            }
+                        }
+                        if can_erase {
+                            for y2 in (2..=y).rev() {
+                                field[y2] = field[y2 - 1];
                             }
                         }
                     }
