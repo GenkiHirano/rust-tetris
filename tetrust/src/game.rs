@@ -94,3 +94,40 @@ pub fn is_collision(field: &Field, pos: &Position, block: BlockKind) -> bool {
     }
     false
 }
+
+// ブロックをフィールドに固定する
+pub fn fix_block(Game { field, pos, block }: &mut Game) {
+    for y in 0..4 {
+        for x in 0..4 {
+            if BLOCKS[*block as usize][y][x] == 1 {
+                field[y + pos.y][x + pos.x] = 1;
+            }
+        }
+    }
+}
+
+// 消せるラインがあるなら削除し、段を下げる
+pub fn erase_line(field: &mut Field) {
+    for y in 1..FIELD_HEIGHT - 1 {
+        let mut can_erase = true;
+        for x in 1..FIELD_WIDTH - 1 {
+            if field[y][x] == 0 {
+                can_erase = false;
+                break;
+            }
+        }
+        if can_erase {
+            for y2 in (2..=y).rev() {
+                field[y2] = field[y2 - 1];
+            }
+        }
+    }
+}
+
+// ブロックを指定した座標へ移動できるなら移動する
+pub fn move_block(game: &mut Game, new_pos: Position) {
+    if !is_collision(&game.field, &new_pos, game.block) {
+        // posの座標を更新
+        game.pos = new_pos;
+    }
+}
