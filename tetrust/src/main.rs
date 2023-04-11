@@ -92,6 +92,12 @@ fn main() {
                 rotate_right(&mut game);
                 draw(&game);
             }
+            Ok(Key::Char('z')) => {
+                // 左回転
+                let mut game = game.lock().unwrap();
+                rotate_left(&mut game);
+                draw(&game);
+            }
             Ok(Key::Char('q')) => {
                 break;
             }

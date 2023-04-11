@@ -174,3 +174,17 @@ pub fn rotate_right(game: &mut Game) {
         game.block = new_shape;
     }
 }
+
+// 左に90度回転する
+#[allow(clippy::needless_range_loop)]
+pub fn rotate_left(game: &mut Game) {
+    let mut new_shape: BlockShape = Default::default();
+    for y in 0..4 {
+        for x in 0..4 {
+            new_shape[4 - 1 - x][y] = game.block[y][x];
+        }
+    }
+    if !is_collision(&game.field, &game.pos, &new_shape) {
+        game.block = new_shape;
+    }
+}
