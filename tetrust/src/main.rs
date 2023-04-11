@@ -86,6 +86,12 @@ fn main() {
                 // フィールドを描画
                 draw(&game);
             }
+            Ok(Key::Char('x')) => {
+                // 右回転
+                let mut game = game.lock().unwrap();
+                rotate_right(&mut game);
+                draw(&game);
+            }
             Ok(Key::Char('q')) => {
                 break;
             }

@@ -160,3 +160,17 @@ pub fn quit() {
     // カーソルを再表示
     println!("\x1b[?25h");
 }
+
+// 右に90度回転する
+#[allow(clippy::needless_range_loop)]
+pub fn rotate_right(game: &mut Game) {
+    let mut new_shape: BlockShape = Default::default();
+    for y in 0..4 {
+        for x in 0..4 {
+            new_shape[y][x] = game.block[4 - 1 - x][y];
+        }
+    }
+    if !is_collision(&game.field, &game.pos, &new_shape) {
+        game.block = new_shape;
+    }
+}
