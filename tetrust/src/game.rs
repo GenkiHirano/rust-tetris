@@ -124,7 +124,8 @@ pub fn draw(
         pos,
         block,
         hold,
-        ..
+        holded: _,
+        next,
     }: &Game,
 ) {
     // 描画用フィールドの生成
@@ -153,6 +154,17 @@ pub fn draw(
             print!("\x1b[{};28H", y + 3); // カーソルを移動
             for x in 0..4 {
                 print!("{}", COLOR_TABLE[hold[y][x]]);
+            }
+            println!();
+        }
+    }
+    // ネクストを描画
+    println!("\x1b[8;28HNEXT"); // カーソルをネクスト位置に移動
+    for (i, next) in next.iter().enumerate() {
+        for y in 0..4 {
+            print!("\x1b[{};28H", i * 4 + y + 9); // カーソルを移動
+            for x in 0..4 {
+                print!("{}", COLOR_TABLE[next[y][x]]);
             }
             println!();
         }
@@ -259,8 +271,6 @@ pub fn spawn_block(game: &mut Game) -> Result<(), ()> {
     // ブロックをランダム生成して、ネクストキューに追加
     game.next
         .push_back(BLOCKS[rand::random::<BlockKind>() as usize]);
-    // デバッグ表示
-    println!("\x1b[24H{:?}", game.next);
     // 衝突チェック
     if is_collision(&game.field, &game.pos, &game.block) {
         Err(())
