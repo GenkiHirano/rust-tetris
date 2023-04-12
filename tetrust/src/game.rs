@@ -1,5 +1,9 @@
 use crate::block::{block_kind, block_kind::WALL as W, BlockColor, COLOR_TABLE};
 use crate::block::{BlockKind, BlockShape, BLOCKS};
+use std::collections::VecDeque;
+
+// ネクストブロックを3つ表示
+pub const NEXT_LENGTH: usize = 3;
 
 // フィールドサイズ
 pub const FIELD_WIDTH: usize = 11 + 2 + 2; // フィールド＋壁＋番兵
@@ -52,6 +56,7 @@ pub struct Game {
     pub block: BlockShape,
     pub hold: Option<BlockShape>,
     pub holded: bool,
+    pub next: VecDeque<BlockShape>,
 }
 
 impl Game {
@@ -85,6 +90,13 @@ impl Game {
             block: BLOCKS[rand::random::<BlockKind>() as usize],
             hold: None,
             holded: false,
+            next: {
+                let mut deque = VecDeque::new();
+                for _ in 0..NEXT_LENGTH {
+                    deque.push_back(BLOCKS[rand::random::<BlockKind>() as usize]);
+                }
+                deque
+            },
         }
     }
 }
@@ -242,8 +254,13 @@ pub fn move_block(game: &mut Game, new_pos: Position) {
 pub fn spawn_block(game: &mut Game) -> Result<(), ()> {
     // posの座標を初期値へ
     game.pos = Position::init();
-    // ブロックをランダム生成
-    game.block = BLOCKS[rand::random::<BlockKind>() as usize];
+    // ネクストキューから次のブロックを取り出す
+    game.block = game.next.pop_front().unwrap();
+    // ブロックをランダム生成して、ネクストキューに追加
+    game.next
+        .push_back(BLOCKS[rand::random::<BlockKind>() as usize]);
+    // デバッグ表示
+    println!("\x1b[24H{:?}", game.next);
     // 衝突チェック
     if is_collision(&game.field, &game.pos, &game.block) {
         Err(())
