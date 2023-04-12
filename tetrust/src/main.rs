@@ -103,6 +103,12 @@ fn main() {
                 }
                 draw(&game);
             }
+            Ok(Key::Char('c')) => {
+                // ホールド
+                let mut game = game.lock().unwrap();
+                hold(&mut game);
+                draw(&game);
+            }
             Ok(Key::Char('q')) => {
                 break;
             }
