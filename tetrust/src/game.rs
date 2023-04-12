@@ -211,18 +211,38 @@ pub fn quit() {
     println!("\x1b[?25h");
 }
 
-// 右に90度回転する
-#[allow(clippy::needless_range_loop)]
-pub fn rotate_right(game: &mut Game) {
-    let mut new_shape: BlockShape = Default::default();
-    for y in 0..4 {
-        for x in 0..4 {
-            new_shape[y][x] = game.block[4 - 1 - x][y];
+// スーパーローテーション処理
+// スーパーローテーションできるなら、その座標を返す
+fn super_rotation(field: &Field, pos: &Position, block: &BlockShape) -> Result<Position, ()> {
+    // 1マスずらした座標
+    let diff_pos = [
+        // 上
+        Position {
+            x: pos.x,
+            y: pos.y.checked_sub(1).unwrap_or(pos.y),
+        },
+        // 右
+        Position {
+            x: pos.x + 1,
+            y: pos.y,
+        },
+        // 下
+        Position {
+            x: pos.x,
+            y: pos.y + 1,
+        },
+        // 左
+        Position {
+            x: pos.x.checked_sub(1).unwrap_or(pos.x),
+            y: pos.y,
+        },
+    ];
+    for pos in diff_pos {
+        if !is_collision(field, &pos, block) {
+            return Ok(pos);
         }
     }
-    if !is_collision(&game.field, &game.pos, &new_shape) {
-        game.block = new_shape;
-    }
+    Err(())
 }
 
 // 左に90度回転する
@@ -235,6 +255,26 @@ pub fn rotate_left(game: &mut Game) {
         }
     }
     if !is_collision(&game.field, &game.pos, &new_shape) {
+        game.block = new_shape;
+    } else if let Ok(new_pos) = super_rotation(&game.field, &game.pos, &new_shape) {
+        game.pos = new_pos;
+        game.block = new_shape;
+    }
+}
+
+// 右に90度回転する
+#[allow(clippy::needless_range_loop)]
+pub fn rotate_right(game: &mut Game) {
+    let mut new_shape: BlockShape = Default::default();
+    for y in 0..4 {
+        for x in 0..4 {
+            new_shape[y][x] = game.block[4 - 1 - x][y];
+        }
+    }
+    if !is_collision(&game.field, &game.pos, &new_shape) {
+        game.block = new_shape;
+    } else if let Ok(new_pos) = super_rotation(&game.field, &game.pos, &new_shape) {
+        game.pos = new_pos;
         game.block = new_shape;
     }
 }
