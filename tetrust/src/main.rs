@@ -32,14 +32,8 @@ fn main() {
                     // posの座標を更新
                     game.pos = new_pos;
                 } else {
-                    // ブロックをフィールドに固定
-                    fix_block(&mut game);
-
-                    // ラインの削除処理
-                    erase_line(&mut game.field);
-
-                    // ブロックの生成
-                    if spawn_block(&mut game).is_err() {
+                    // ブロック落下後の処理
+                    if landing(&mut game).is_err() {
                         // ブロックを生成できないならゲームオーバー
                         gameover(&game);
                         break;
@@ -96,6 +90,17 @@ fn main() {
                 // 左回転
                 let mut game = game.lock().unwrap();
                 rotate_left(&mut game);
+                draw(&game);
+            }
+            Ok(Key::Char('v')) => {
+                // ハードドロップ
+                let mut game = game.lock().unwrap();
+                hard_drop(&mut game);
+                if landing(&mut game).is_err() {
+                    // ブロックを生成できないならゲームオーバー
+                    gameover(&game);
+                    break;
+                }
                 draw(&game);
             }
             Ok(Key::Char('q')) => {
