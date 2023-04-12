@@ -134,6 +134,17 @@ pub fn draw(
             }
         }
     }
+    // ホールドを描画
+    println!("\x1b[2;28HHOLD"); // カーソルをホールド位置に移動
+    if let Some(hold) = hold {
+        for y in 0..4 {
+            print!("\x1b[{};28H", y + 3); // カーソルを移動
+            for x in 0..4 {
+                print!("{}", COLOR_TABLE[hold[y][x]]);
+            }
+            println!();
+        }
+    }
     // フィールドを描画
     println!("\x1b[H"); // カーソルを先頭に移動
     for y in 0..FIELD_HEIGHT - 1 {
@@ -142,6 +153,8 @@ pub fn draw(
         }
         println!();
     }
+    // 色情報をリセット
+    println!("\x1b[0m");
 }
 
 // ブロックがフィールドに衝突する場合は`true`を返す
