@@ -20,8 +20,13 @@ fn main() {
         let game = Arc::clone(&game);
         let _ = thread::spawn(move || {
             loop {
-                // 1秒間スリーブする
-                thread::sleep(time::Duration::from_millis(1000));
+                // nミリ秒間スリーブする
+                let sleep_msec =
+                    match 1000u64.saturating_sub((game.lock().unwrap().line as u64 / 10) * 100) {
+                        0 => 100,
+                        msec => msec,
+                    };
+                thread::sleep(time::Duration::from_millis(sleep_msec));
                 // 自然落下
                 let mut game = game.lock().unwrap();
                 let new_pos = Position {

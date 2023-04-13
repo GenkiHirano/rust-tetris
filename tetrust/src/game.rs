@@ -41,6 +41,8 @@ pub fn landing(game: &mut Game) -> Result<(), ()> {
     let line = erase_line(&mut game.field);
     // 消した段数によって得点を加算
     game.score += SCORE_TABLE[line];
+    // 消した段数の合計を加算
+    game.line += line;
     // ブロックの生成
     spawn_block(game)?;
     // 再ホールド可能にする
@@ -72,6 +74,7 @@ pub struct Game {
     pub next: VecDeque<BlockShape>,
     pub next_buf: VecDeque<BlockShape>,
     pub score: usize,
+    pub line: usize,
 }
 
 impl Game {
@@ -108,6 +111,7 @@ impl Game {
             next: gen_block_7().into(),
             next_buf: gen_block_7().into(),
             score: 0,
+            line: 0,
         };
         // 初期ブロックを供給
         spawn_block(&mut game).ok();
@@ -142,6 +146,7 @@ pub fn draw(
         next,
         next_buf: _,
         score,
+        ..
     }: &Game,
 ) {
     // 描画用フィールドの生成
