@@ -38,7 +38,9 @@ pub fn landing(game: &mut Game) -> Result<(), ()> {
     // ブロックをフィールドに固定
     fix_block(game);
     // ラインの削除処理
-    erase_line(&mut game.field);
+    let line = erase_line(&mut game.field);
+    // 消した段数によって得点を加算
+    game.score += SCORE_TABLE[line];
     // ブロックの生成
     spawn_block(game)?;
     // 再ホールド可能にする
@@ -52,6 +54,15 @@ impl Position {
     }
 }
 
+// 得点表
+pub const SCORE_TABLE: [usize; 5] = [
+    0,   // 0段消し
+    1,   // 1段消し
+    5,   // 2段消し
+    25,  // 3段消し
+    100, // 4段消し
+];
+
 pub struct Game {
     pub field: Field,
     pub pos: Position,
@@ -60,6 +71,7 @@ pub struct Game {
     pub holded: bool,
     pub next: VecDeque<BlockShape>,
     pub next_buf: VecDeque<BlockShape>,
+    pub score: usize,
 }
 
 impl Game {
@@ -95,6 +107,7 @@ impl Game {
             holded: false,
             next: gen_block_7().into(),
             next_buf: gen_block_7().into(),
+            score: 0,
         };
         // 初期ブロックを供給
         spawn_block(&mut game).ok();
@@ -127,7 +140,8 @@ pub fn draw(
         hold,
         holded: _,
         next,
-        ..
+        next_buf: _,
+        score,
     }: &Game,
 ) {
     // 描画用フィールドの生成
@@ -171,7 +185,9 @@ pub fn draw(
             println!();
         }
     }
-    // フィールドを描画
+    // スコアを描画
+    println!("\x1b[22;28H{}", score); // カーソルをスコア位置に移動
+                                      // フィールドを描画
     println!("\x1b[H"); // カーソルを先頭に移動
     for y in 0..FIELD_HEIGHT - 1 {
         for x in 1..FIELD_WIDTH - 1 {
@@ -237,8 +253,9 @@ pub fn hold(game: &mut Game) {
     game.holded = true;
 }
 
-// 消せるラインがあるなら削除し、段を下げる
-pub fn erase_line(field: &mut Field) {
+// 消したライン数を返す
+pub fn erase_line(field: &mut Field) -> usize {
+    let mut count = 0;
     for y in 1..FIELD_HEIGHT - 2 {
         let mut can_erase = true;
         for x in 2..FIELD_WIDTH - 2 {
@@ -248,11 +265,13 @@ pub fn erase_line(field: &mut Field) {
             }
         }
         if can_erase {
+            count += 1;
             for y2 in (2..=y).rev() {
                 field[y2] = field[y2 - 1];
             }
         }
     }
+    count
 }
 
 // ブロックを指定した座標へ移動できるなら移動する
