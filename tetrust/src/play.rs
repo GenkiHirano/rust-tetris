@@ -1,5 +1,6 @@
 use crate::game::*;
 use getch_rs::{Getch, Key};
+use rand::Rng;
 use std::sync::{Arc, Mutex};
 use std::{thread, time};
 
@@ -122,8 +123,41 @@ pub fn normal() {
 // オートプレイ
 pub fn auto() {
     // 自動化処理
-    let _ = thread::spawn(|| loop {
-        todo!();
+    let _ = thread::spawn(|| {
+        let mut game = Game::new();
+        // 画面クリア
+        println!("\x1b[2J\x1b[H\x1b[?25l");
+        // フィールドを描画
+        draw(&game);
+
+        loop {
+            // 100ミリ秒毎に何かする
+            thread::sleep(time::Duration::from_millis(100));
+            // 20%くらいの確立でホールド
+            let mut rng = rand::thread_rng();
+            if rng.gen_range(0..5) == 0 {
+                hold(&mut game);
+            }
+            // ランダムに回転
+            for _ in 0..rng.gen_range(0..=3) {
+                rotate_right(&mut game);
+            }
+            // ランダムに横移動
+            let dx: isize = rng.gen_range(-4..=5);
+            let new_pos = Position {
+                x: (game.pos.x as isize + dx) as usize,
+                y: game.pos.y,
+            };
+            move_block(&mut game, new_pos);
+            // ハードドロップ
+            hard_drop(&mut game);
+            if landing(&mut game).is_err() {
+                // ブロックを生成できないならゲームオーバー
+                gameover(&game);
+                break;
+            }
+            draw(&game);
+        }
     });
 
     // キー入力処理
