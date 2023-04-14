@@ -1,3 +1,7 @@
 {
-  "rust-analyzer.linkedProjects": ["./tetrust/Cargo.toml"]
+  "rust-analyzer.linkedProjects": [
+    "./tetrust/Cargo.toml",
+    "./tetrust/Cargo.toml",
+    "./tetrust/Cargo.toml"
+  ]
 }
