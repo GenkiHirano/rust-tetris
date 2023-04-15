@@ -131,8 +131,6 @@ pub fn auto() {
         draw(&game);
 
         loop {
-            // 100ミリ秒毎に何かする
-            thread::sleep(time::Duration::from_millis(100));
             // 評価後のエリート個体を取得
             let elite = eval(&game);
             game = elite;
