@@ -6,52 +6,58 @@ pub fn eval(game: &Game) -> Game {
     // エリートブロック (Game, line, height_max)
     let mut elite = (game.clone(), 0f64);
 
-    // 全回転
-    for rotate_count in 0..=3 {
+    for do_hold in [true, false] {
         let mut game = game.clone();
-        for _ in 0..=rotate_count {
-            // 回転処理
-            rotate_right(&mut game);
+        if do_hold {
+            hold(&mut game);
         }
-        // 全横移動
-        for dx in -4..=5 {
+        // 全回転
+        for rotate_count in 0..=3 {
             let mut game = game.clone();
-            // 移動処理
-            let new_pos = Position {
-                x: match game.pos.x as isize + dx {
-                    (..=0) => 0,
-                    x => x as usize,
-                },
-                y: game.pos.y,
-            };
-            move_block(&mut game, new_pos);
-            hard_drop(&mut game);
-            fix_block(&mut game);
+            for _ in 0..=rotate_count {
+                // 回転処理
+                rotate_right(&mut game);
+            }
+            // 全横移動
+            for dx in -4..=5 {
+                let mut game = game.clone();
+                // 移動処理
+                let new_pos = Position {
+                    x: match game.pos.x as isize + dx {
+                        (..=0) => 0,
+                        x => x as usize,
+                    },
+                    y: game.pos.y,
+                };
+                move_block(&mut game, new_pos);
+                hard_drop(&mut game);
+                fix_block(&mut game);
 
-            // インプット情報の取得
-            let line = erase_line_count(&game.field); // 消せるライン数
-            let height_max = field_height_max(&game.field); // フィールドの高さ
-            let height_diff = diff_in_height(&game.field); // 高低差
-            let dead_space = dead_space_count(&game.field); // デッドスペース数
+                // インプット情報の取得
+                let line = erase_line_count(&game.field); // 消せるライン数
+                let height_max = field_height_max(&game.field); // フィールドの高さ
+                let height_diff = diff_in_height(&game.field); // 高低差
+                let dead_space = dead_space_count(&game.field); // デッドスペース数
 
-            // 正規化
-            let mut line = normalization(line as f64, 0.0, 4.0);
-            let mut height_max = 1.0 - normalization(height_max as f64, 0.0, 20.0);
-            let mut height_diff = 1.0 - normalization(height_diff as f64, 0.0, 200.0);
-            let mut dead_space = 1.0 - normalization(dead_space as f64, 0.0, 200.0);
+                // 正規化
+                let mut line = normalization(line as f64, 0.0, 4.0);
+                let mut height_max = 1.0 - normalization(height_max as f64, 0.0, 20.0);
+                let mut height_diff = 1.0 - normalization(height_diff as f64, 0.0, 200.0);
+                let mut dead_space = 1.0 - normalization(dead_space as f64, 0.0, 200.0);
 
-            // インプット情報に重み付け
-            line *= 100.0;
-            height_max *= 1.0;
-            height_diff *= 10.0;
-            dead_space *= 100.0;
+                // インプット情報に重み付け
+                line *= 100.0;
+                height_max *= 1.0;
+                height_diff *= 10.0;
+                dead_space *= 100.0;
 
-            // インプット情報を評価
-            let score = line + height_max + height_diff + dead_space;
-            if elite.1 < score {
-                // 一番良い個体を記録
-                elite.0 = game;
-                elite.1 = score;
+                // インプット情報を評価
+                let score = line + height_max + height_diff + dead_space;
+                if elite.1 < score {
+                    // 一番良い個体を記録
+                    elite.0 = game;
+                    elite.1 = score;
+                }
             }
         }
     }
